@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>AI Chatbot</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>AI Chat Assistant</h1>
+
+    <div id="chat-box">
+
+        <div class="ai">
+            Hello! How can I help you today?
+        </div>
+
+    </div>
+
+    <div class="input-area">
+
+        <input
+            type="text"
+            id="message"
+            placeholder="Type message..."
+        >
+
+        <button onclick="sendMessage()">
+            Send
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+async function sendMessage() {
+
+    let input = document.getElementById("message");
+
+    let message = input.value;
+
+    if(message.trim() === "") return;
+
+    let chatBox = document.getElementById("chat-box");
+
+    // USER MESSAGE
+    chatBox.innerHTML += `
+        <div class="user">
+            ${message}
+        </div>
+    `;
+
+    input.value = "";
+
+    // SEND TO BACKEND
+    let response = await fetch("/chat", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            message: message
+        })
+
+    });
+
+    let data = await response.json();
+
+    // AI MESSAGE
+    chatBox.innerHTML += `
+        <div class="ai">
+            ${data.reply}
+        </div>
+    `;
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+
+// ENTER KEY
+document.getElementById("message")
+.addEventListener("keypress", function(event) {
+
+    if(event.key === "Enter") {
+        sendMessage();
+    }
+
+});
+
+</script>
+
+</body>
+</html>
